@@ -1,4 +1,5 @@
-class Node
+require 'byebug'
+class Node 
   attr_reader :key
   attr_accessor :val, :next, :prev
 
@@ -17,10 +18,20 @@ class Node
     # optional but useful, connects previous link to next link
     # and removes self from list.
   end
+
+  # def inspect
+  #   "#{object_id} #{@key}: #{@val}, prev: #{@prev}, next: #{@next}"
+  # end
 end
 
 class LinkedList
+  attr_reader :head, :tail, :store
   def initialize
+    @head = Node.new
+    @tail = Node.new
+    self.tail.prev = @head
+    self.head.next = @tail
+    # @store = [@head, @tail]
   end
 
   def [](i)
@@ -29,21 +40,31 @@ class LinkedList
   end
 
   def first
+    self.tail.prev
   end
 
   def last
+    self.head.next
   end
 
   def empty?
+    self.tail.prev == @head
+    self.head.next == @tail
   end
 
   def get(key)
+    self.store.each {|node| return node.val if node.key == key}
   end
 
   def include?(key)
   end
 
   def append(key, val)
+    debugger
+    new_node = Node.new(key, val)
+    new_node.prev = self.tail.prev
+    self.tail.prev = new_node
+    new_node.next = self.tail
   end
 
   def update(key, val)
