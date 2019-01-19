@@ -1,7 +1,9 @@
-require 'byebug'
+require 'byebug' 
 class Node 
   attr_reader :key
   attr_accessor :val, :next, :prev
+
+  include Enumerable
 
   def initialize(key = nil, val = nil)
     @key = key
@@ -18,14 +20,11 @@ class Node
     # optional but useful, connects previous link to next link
     # and removes self from list.
   end
-
-  # def inspect
-  #   "#{object_id} #{@key}: #{@val}, prev: #{@prev}, next: #{@next}"
-  # end
 end
 
 class LinkedList
   attr_reader :head, :tail, :store
+  include Enumerable
   def initialize
     @head = Node.new
     @tail = Node.new
@@ -53,31 +52,53 @@ class LinkedList
   end
 
   def get(key)
-    self.store.each {|node| return node.val if node.key == key}
+    self.each do |node|
+      return node.val if node.key == key
+    end
+    nil
   end
 
   def include?(key)
+    self.each do |node|
+      return true if node.key == key
+    end
+    false
   end
 
   def append(key, val)
-    debugger
     new_node = Node.new(key, val)
-    new_node.prev = self.tail.prev
-    self.tail.prev = new_node
-    new_node.next = self.tail
+    # byebug
+    new_node.prev = self.head
+    new_node.next = self.head.next
+    new_node.next.prev = new_node
+    self.head.next = new_node
+    self.tail.prev = new_node if self.tail.prev == self.head
   end
 
   def update(key, val)
+    self.each do |node|
+      if  node.key == key
+        node.val = val
+      end
+    end
   end
 
   def remove(key)
+
   end
 
-  def each
+  def each(&prc)
+    current = self.tail.prev
+    
+    until current == self.head
+      prc.call(current)
+      current = current.prev
+    end
+    self
   end
 
   # uncomment when you have `each` working and `Enumerable` included
-  # def to_s
-  #   inject([]) { |acc, link| acc << "[#{link.key}, #{link.val}]" }.join(", ")
-  # end
+  def to_s
+    inject([]) { |acc, link| acc << "[#{link.key}, #{link.val}]" }.join(", ")
+  end
 end
